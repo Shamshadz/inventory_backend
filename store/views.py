@@ -62,5 +62,3 @@ class ItemsListView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = ItemSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-# this comment
