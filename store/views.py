@@ -4,6 +4,8 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import Http404
+from django.db.models import Q
+from rest_framework import filters
 
 # Create your views here.
 
@@ -28,15 +30,44 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ItemSerializer
 
 
-# 
+# ok
 class ItemsListView(generics.ListAPIView):
     serializer_class = ItemSerializer
 
     def get_queryset(self):
         vehicle = self.kwargs['vehicle']
-        return ItemModel.objects.filter(vehicle_name=vehicle)
+        vehicle = VehicleModel.objects.get(vehicle_name=vehicle)
+        return ItemModel.objects.filter(vehicle_name=vehicle.id)
 
     def get(self, request, vehicle, format=None):
         queryset = self.get_queryset()
         serializer = ItemSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+def search(request):
+
+    query = request.GET['query']
+    print(query)
+
+    if len(query) <1 or len(query) > 50:
+        query = []
+    else:
+        items = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(location__icontains=query))
+
+        print(items)                  
+
+
+    return Response( status=status.HTTP_200_OK)
+# company = CompanyModel.objects.filter(Q(company_name__icontains=query))
+# vehicle = CompanyModel.objects.filter(Q(vehicle_name__icontains=query))
+
+class DynamicSearchFilter(filters.SearchFilter):
+    def get_search_fields(self, view, request):
+        return request.GET.getlist('search_fields', [])
+    
+
+
+class SearchAPIView(generics.ListAPIView):
+    filter_backends = (DynamicSearchFilter,)
+    queryset = ItemModel.objects.all()
+    serializer_class = ItemSerializer
