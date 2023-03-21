@@ -66,7 +66,6 @@ class DynamicSearchFilter(filters.SearchFilter):
         return request.GET.getlist('search_fields', [])
     
 
-
 class SearchAPIView(generics.ListAPIView):
     filter_backends = (DynamicSearchFilter,)
     queryset = ItemModel.objects.all()
