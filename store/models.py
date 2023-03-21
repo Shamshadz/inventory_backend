@@ -4,17 +4,23 @@ from django.db import models
 
 
 class CompanyModel(models.Model):
-    company_name = models.CharField(max_length=1024)
+    company_name = models.CharField(max_length=1024, blank=False)
 
     def __str__(self):
         return self.company_name
 
+class VehicleModel(models.Model):
+    vehicle_name = models.CharField(max_length=1024, blank=False)
+
+    def __str__(self):
+        return self.vehicle_name
 
 class ItemModel(models.Model):
     company_name = models.ForeignKey(
         CompanyModel, related_name='company', on_delete=models.CASCADE)
-    vehicle_name = models.CharField(max_length=1024, blank=False)
-    item_code = models.CharField(max_length=1024, blank=False)
+    vehicle_name = models.ForeignKey(
+        VehicleModel, related_name='vehicle', on_delete=models.CASCADE)
+    item_code = models.CharField(max_length=1024, unique=True, blank=True)
     description = models.CharField(max_length=1024, blank=False)
     location = models.CharField(max_length=1024, blank=False)
     quantity = models.PositiveIntegerField(default=0)

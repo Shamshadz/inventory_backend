@@ -1,5 +1,5 @@
-from store.serializers import ItemSerializer, CompanySerializer
-from store.models import ItemModel, CompanyModel
+from store.serializers import ItemSerializer, CompanySerializer, VehicleSerializer
+from store.models import ItemModel, CompanyModel, VehicleModel
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,58 +7,36 @@ from django.http import Http404
 
 # Create your views here.
 
-
+# ok
 class CompanyView(generics.ListCreateAPIView):
     serializer_class = CompanySerializer
     queryset = CompanyModel.objects.all()
 
+# ok
+class VehicleView(generics.ListCreateAPIView):
+    serializer_class = VehicleSerializer
+    queryset = VehicleModel.objects.all()
 
-class ItemView(APIView):
+# ok
+class ItemList(generics.ListCreateAPIView):
+    serializer_class = ItemSerializer
+    queryset = ItemModel.objects.all()
 
-    def get_object(self, pk):
-        print("get_object _called")
-        try:
-            item = ItemModel.objects.get(pk=pk)
-            return item
-        except ItemModel.DoesNotExist:
-            raise Http404
-
-    def post(self, request, pk, format=None):
-        serializer = ItemSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request, pk, format=None):
-        print("get _called")
-        item = self.get_object(pk)
-        serializer = ItemSerializer(item)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        print("put_object _called")
-        ItemModel = self.get_object(pk)
-        serializer = ItemSerializer(ItemModel, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        item = self.get_object(pk)
-        item.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# ok
+class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ItemModel.objects.all()
+    serializer_class = ItemSerializer
 
 
+# 
 class ItemsListView(generics.ListAPIView):
     serializer_class = ItemSerializer
 
     def get_queryset(self):
-        company = self.kwargs['company']
-        return ItemModel.objects.filter(vehicle_name=company)
+        vehicle = self.kwargs['vehicle']
+        return ItemModel.objects.filter(vehicle_name=vehicle)
 
-    def get(self, request, comapany, format=None):
+    def get(self, request, vehicle, format=None):
         queryset = self.get_queryset()
         serializer = ItemSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
