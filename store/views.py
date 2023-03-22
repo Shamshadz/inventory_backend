@@ -70,3 +70,15 @@ class SearchAPIView(generics.ListAPIView):
     filter_backends = (DynamicSearchFilter,)
     queryset = ItemModel.objects.all()
     serializer_class = ItemSerializer
+
+
+class ItemSearchView(APIView):
+    serializer_class = ItemSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['search']
+        queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query) |
+                                             Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
+                                            | Q(loction__icontains=query) | Q(description__icontains=query) | Q(location__icontains=query))
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
