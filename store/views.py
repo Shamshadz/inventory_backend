@@ -77,8 +77,26 @@ class ItemSearchView(APIView):
 
     def get(self, request, format=None):
         query = request.GET['search']
-        queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query) |
-                                             Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
-                                            | Q(loction__icontains=query) | Q(description__icontains=query) | Q(location__icontains=query))
-        serializer = self.serializer_class(queryset, many=True)
+
+        print(query)
+
+        query_list = filters(query)
+        print(query_list)
+        queryset_list  = []
+
+        for query in query_list:
+            queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query) |
+                                                Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
+                                                | Q(location__icontains=query))
+            for i in queryset:
+                queryset_list.append(i)
+            
+        queryset_list = [*set(queryset_list)]
+        print(queryset_list)
+
+        serializer = self.serializer_class(queryset_list, many=True)
         return Response(serializer.data)
+    
+def filters(query):
+    query_list = query.split(' ')
+    return query_list
