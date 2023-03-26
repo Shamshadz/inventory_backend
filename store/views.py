@@ -1,5 +1,5 @@
-from store.serializers import ItemSerializer, CompanySerializer, VehicleSerializer
-from store.models import ItemModel, CompanyModel, VehicleModel
+from store.serializers import ItemSerializer, CompanySerializer, VCompanySerializer, VehicleSerializer, DashBoardSerializer
+from store.models import ItemModel, CompanyModel, VehicleModel, VCompanyModel, DashBoardModel
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,6 +13,11 @@ from rest_framework import filters
 class CompanyView(generics.ListCreateAPIView):
     serializer_class = CompanySerializer
     queryset = CompanyModel.objects.all()
+
+# ok
+class VCompanyView(generics.ListCreateAPIView):
+    serializer_class = VCompanySerializer
+    queryset = VCompanyModel.objects.all()
 
 # ok
 class VehicleView(generics.ListCreateAPIView):
@@ -85,7 +90,7 @@ class ItemSearchView(APIView):
         queryset_list  = []
 
         for query in query_list:
-            queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query) |
+            queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query)| Q(vcompany_name__vcompany_name__icontains=query) |
                                                 Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
                                                 | Q(location__icontains=query))
             for i in queryset:
@@ -100,3 +105,8 @@ class ItemSearchView(APIView):
 def filters(query):
     query_list = query.split(' ')
     return query_list
+
+
+class DashBoardList(generics.ListCreateAPIView):
+    serializer_class = DashBoardSerializer
+    queryset = DashBoardModel.objects.all()

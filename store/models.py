@@ -8,6 +8,12 @@ class CompanyModel(models.Model):
 
     def __str__(self):
         return self.company_name
+        
+class VCompanyModel(models.Model):
+    vcompany_name = models.CharField(max_length=1024, blank=False)
+
+    def __str__(self):
+        return self.vcompany_name
 
 class VehicleModel(models.Model):
     vehicle_name = models.CharField(max_length=1024, blank=False)
@@ -18,6 +24,8 @@ class VehicleModel(models.Model):
 class ItemModel(models.Model):
     company_name = models.ForeignKey(
         CompanyModel, related_name='company', on_delete=models.CASCADE)
+    vcompany_name = models.ForeignKey(
+        VCompanyModel, related_name='vehicleCompany', on_delete=models.CASCADE)
     vehicle_name = models.ForeignKey(
         VehicleModel, related_name='vehicle', on_delete=models.CASCADE)
     item_code = models.CharField(max_length=1024, unique=True, blank=True)
@@ -25,10 +33,18 @@ class ItemModel(models.Model):
     location = models.CharField(max_length=1024, blank=False)
     quantity = models.PositiveIntegerField(default=0)
     MRP = models.CharField(max_length=1024, blank=False)
-    discount = models.CharField(max_length=1024)
     mech_selling_pr = models.CharField(max_length=1024)
     cust_selling_pr = models.CharField(max_length=1024)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.item_code
+
+class DashBoardModel(models.Model):
+    item = models.ForeignKey(
+        ItemModel, related_name='item', on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.item

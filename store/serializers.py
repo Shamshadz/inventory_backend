@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from store.models import ItemModel, CompanyModel, VehicleModel
+from store.models import ItemModel, VCompanyModel, CompanyModel, VehicleModel, DashBoardModel
 from django.db import IntegrityError
 from rest_framework.serializers import PrimaryKeyRelatedField
 
@@ -16,6 +16,23 @@ class CompanySerializer(serializers.ModelSerializer):
             )
             company.save()
             return company
+        except IntegrityError as e:
+            raise serializers.ValidationError({
+                "errors": str(e)
+            })
+        
+class VCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VCompanyModel
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            vcompany = VCompanyModel.objects.create(
+                vcompany_name=validated_data['vcompany_name'],
+            )
+            vcompany.save()
+            return vcompany
         except IntegrityError as e:
             raise serializers.ValidationError({
                 "errors": str(e)
@@ -40,6 +57,7 @@ class VehicleSerializer(serializers.ModelSerializer):
 
 class ItemSerializer(serializers.ModelSerializer):
     company_name = CompanySerializer()
+    vcompany_name = VCompanySerializer()
     vehicle_name = VehicleSerializer()
 
     class Meta:
@@ -48,15 +66,18 @@ class ItemSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         company_data = validated_data.pop('company_name')
+        vcompany_data = validated_data.pop('vcompany_name')
         vehicle_data = validated_data.pop('vehicle_name')
         company = CompanyModel.objects.get_or_create(**company_data)
+        vcompany = VCompanyModel.objects.get_or_create(**vcompany_data)
         vehicle = VehicleModel.objects.get_or_create(**vehicle_data)
         item = ItemModel.objects.create(
-            company_name=company[0], vehicle_name =vehicle[0] , **validated_data)
+            company_name=company[0],vcompany_name=vcompany[0], vehicle_name =vehicle[0] , **validated_data)
         return item
     
     def update(self, instance, validated_data):
         company_name_data = validated_data.pop('company_name', None)
+        vcompany_name_data = validated_data.pop('vcompany_name', None)
         vehicle_name_data = validated_data.pop('vehicle_name', None)
 
         for key, value in validated_data.items():
@@ -79,6 +100,24 @@ class ItemSerializer(serializers.ModelSerializer):
                 company_name_instance = company_name_queryset.first() # or vehicle_name_queryset[0]
 
         instance.company_name = company_name_instance
+
+        #####
+        vcompany_name_instance = None
+
+        try:
+            vcompany_name_pk = VCompanyModel.objects.get(**vcompany_name_data).id
+        except:
+            new_vcompany_name = VCompanyModel.objects.get_or_create(**vcompany_name_data)
+            new_vcompany_name = new_vcompany_name[0]
+            vcompany_name_pk = VCompanyModel.objects.get(**vcompany_name_data).id
+            
+
+        if vcompany_name_pk:
+            vcompany_name_queryset = VCompanyModel.objects.filter(pk=vcompany_name_pk)
+            if vcompany_name_queryset.exists():
+                vcompany_name_instance = vcompany_name_queryset.first() # or vehicle_name_queryset[0]
+
+        instance.vcompany_name = vcompany_name_instance
 
         # vehicle_name_pk = vehicle_name_data.get('id', None) if vehicle_name_data else None
         vehicle_name_instance = None
@@ -107,3 +146,22 @@ class ItemSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
+
+
+class DashBoardSerializer(serializers.ModelSerializer):
+    item = ItemSerializer()
+
+    class Meta:
+        model = DashBoardModel
+        fields = '__all__'
+
+
+    def create(self, validated_data):
+        item_data = validated_data.pop('item')
+       
+        item = DashBoardModel.objects.get_or_create(**item_data)
+        
+        DashBoard = ItemModel.objects.create(
+            item =item[0] , **validated_data)
+        
+        return DashBoard
