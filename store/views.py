@@ -28,6 +28,29 @@ class VehicleView(generics.ListCreateAPIView):
     queryset = VehicleModel.objects.all()
 
 # ok
+class VehicleSearchView(APIView):
+    serializer_class = VehicleSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['search']
+
+        query_list = filters(query)
+        print(query_list)
+        queryset_list  = []
+
+        for query in query_list:
+            queryset = VehicleModel.objects.filter(Q(vehicle_name__icontains=query) |
+                                                 Q(vcompany__vcompany_name__icontains=query))
+            for i in queryset:
+                queryset_list.append(i)
+            
+        queryset_list = [*set(queryset_list)]
+
+        serializer = self.serializer_class(queryset_list, many=True)
+        return Response(serializer.data)
+    
+
+# ok
 class ItemList(generics.ListCreateAPIView):
     serializer_class = ItemSerializer
     queryset = ItemModel.objects.all()
@@ -64,10 +87,8 @@ def search(request):
 
         print(items)                  
 
-
     return Response( status=status.HTTP_200_OK)
-# company = CompanyModel.objects.filter(Q(company_name__icontains=query))
-# vehicle = CompanyModel.objects.filter(Q(vehicle_name__icontains=query))
+
 
 class DynamicSearchFilter(filters.SearchFilter):
     def get_search_fields(self, view, request):
