@@ -16,6 +16,8 @@ class VCompanyModel(models.Model):
         return self.vcompany_name
 
 class VehicleModel(models.Model):
+    vcompany = models.ForeignKey(
+        VCompanyModel, related_name='vCompany', on_delete=models.CASCADE)
     vehicle_name = models.CharField(max_length=1024, blank=False)
 
     def __str__(self):
@@ -24,8 +26,8 @@ class VehicleModel(models.Model):
 class ItemModel(models.Model):
     company_name = models.ForeignKey(
         CompanyModel, related_name='company', on_delete=models.CASCADE)
-    vcompany_name = models.ForeignKey(
-        VCompanyModel, related_name='vehicleCompany', on_delete=models.CASCADE)
+    # vcompany_name = models.ForeignKey(
+    #     VCompanyModel, related_name='vehicleCompany', on_delete=models.CASCADE)
     vehicle_name = models.ForeignKey(
         VehicleModel, related_name='vehicle', on_delete=models.CASCADE)
     item_code = models.CharField(max_length=1024, unique=True, blank=True)
