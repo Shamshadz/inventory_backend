@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from store.models import ItemModel, VCompanyModel, CompanyModel, VehicleModel, DashBoardModel
+from store.models import ItemModel, VCompanyModel, CompanyModel, VehicleModel, DashBoardModel, LocationModel
 from django.db import IntegrityError
-from rest_framework.serializers import PrimaryKeyRelatedField
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -165,3 +164,16 @@ class DashBoardSerializer(serializers.ModelSerializer):
             item =item[0] , **validated_data)
         
         return DashBoard
+    
+class LoacationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = LocationModel
+        fields = '__all__'
+
+    def create(self, validated_data):
+        my_instance = LocationModel.objects.create(
+            photo=validated_data.get('photo'),
+            location=validated_data.get('location'),
+        )
+        return my_instance

@@ -39,11 +39,20 @@ class ItemModel(models.Model):
 
     def __str__(self):
         return self.item_code
+    
+class LocationModel(models.Model):
+    photo = models.ImageField(blank=True,null=True)
+    location = models.CharField(max_length=1024)
+
+    def __str__(self):
+        return self.location
 
 class DashBoardModel(models.Model):
     item = models.ForeignKey(
         ItemModel, related_name='item', on_delete=models.CASCADE
     )
+    sold_to = models.CharField(max_length=1024,null=True,blank=True)
+    sold_at = models.CharField(max_length=1024,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

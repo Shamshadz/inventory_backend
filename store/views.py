@@ -1,5 +1,7 @@
-from store.serializers import ItemSerializer, CompanySerializer, VCompanySerializer, VehicleSerializer, DashBoardSerializer
-from store.models import ItemModel, CompanyModel, VehicleModel, VCompanyModel, DashBoardModel
+from store.serializers import (ItemSerializer, CompanySerializer, VCompanySerializer,
+                                VehicleSerializer, DashBoardSerializer, LoacationSerializer)
+from store.models import (ItemModel, CompanyModel, VehicleModel, VCompanyModel, 
+                          DashBoardModel, LocationModel)
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -83,21 +85,19 @@ class ItemSearchView(APIView):
     def get(self, request, format=None):
         query = request.GET['search']
 
-        print(query)
-
         query_list = filters(query)
         print(query_list)
         queryset_list  = []
 
         for query in query_list:
-            queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query)| Q(vcompany_name__vcompany_name__icontains=query) |
+            queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query)|
+                                                 Q(vcompany_name__vcompany_name__icontains=query) |
                                                 Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
                                                 | Q(location__icontains=query))
             for i in queryset:
                 queryset_list.append(i)
             
         queryset_list = [*set(queryset_list)]
-        print(queryset_list)
 
         serializer = self.serializer_class(queryset_list, many=True)
         return Response(serializer.data)
@@ -110,3 +110,41 @@ def filters(query):
 class DashBoardList(generics.ListCreateAPIView):
     serializer_class = DashBoardSerializer
     queryset = DashBoardModel.objects.all()
+
+class LocationView(APIView):
+    serializer_class = LoacationSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['location']
+        location = LocationModel.objects.filter(Q(location__icontains=query))
+
+        serializer = self.serializer_class(location, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, format=None):
+        
+        serializer = LoacationSerializer(data = request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class LocationDelete(APIView):
+    serializer_class = LoacationSerializer
+
+    def get_object(self, pk):
+        try:
+            return LocationModel.objects.get(pk=pk)
+        except LocationModel.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk, format=None):
+        location = self.get_object(pk)
+        location.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+        
+
+
