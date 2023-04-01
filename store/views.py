@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from django.http import Http404
 from django.db.models import Q
 from rest_framework import filters
+import os
 
 # Create your views here.
 
@@ -135,12 +136,16 @@ class LocationDelete(APIView):
 
     def get_object(self, pk):
         try:
+            print(LocationModel.objects.get(pk=pk))
             return LocationModel.objects.get(pk=pk)
         except LocationModel.DoesNotExist:
             raise Http404
 
     def delete(self, request, pk, format=None):
         location = self.get_object(pk)
+        print(location)
+        if len(location.photo) > 2:
+            os.remove(location.photo.path)
         location.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
