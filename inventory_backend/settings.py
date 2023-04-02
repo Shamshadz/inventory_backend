@@ -122,7 +122,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_URL = '/static/images/'        ## change this to '/static/images/' in hosting
+MEDIA_URL = '/images/'        ## change this to '/static/images/' in hosting
 MEDIA_ROOT = os.path.join(BASE_DIR,'static/images')
 
 # Default primary key field type
