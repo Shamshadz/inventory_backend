@@ -20,6 +20,7 @@ urlpatterns = [
     ## http://127.0.0.1:8000/api/store/searchItem/?search=query
     path('dashboardList/', DashBoardList.as_view(), name='dashBoard-list'), #ok
     path('location/', LocationView.as_view(), name='location'),
+    ## http://127.0.0.1:8000/api/store/location/?location=
     path('locationDelete/<int:pk>', LocationDelete.as_view(), name='location-delete'),
     # http://127.0.0.1:8000/api/store/searchItem/?search=hiran
 
