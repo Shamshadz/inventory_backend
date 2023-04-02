@@ -140,8 +140,9 @@ class LocationView(APIView):
         query = request.GET['location']
         location = LocationModel.objects.filter(Q(location__icontains=query))
 
-        serializer = self.serializer_class(location, many=True)
-        return Response(serializer.data)
+        serializer = self.serializer_class(location, many=True, context={"request":request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     
     def post(self, request, format=None):
         

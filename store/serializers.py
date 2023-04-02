@@ -143,10 +143,21 @@ class DashBoardSerializer(serializers.ModelSerializer):
         return DashBoard
     
 class LoacationSerializer(serializers.ModelSerializer):
-
+    photo_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = LocationModel
-        fields = '__all__'
+        fields = ['id', 'location' , 'photo', 'photo_url']
+
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        if obj.photo:
+            photo_url = obj.photo.url
+            if request is not None:
+                photo_url = request.build_absolute_uri(photo_url)
+            return photo_url
+        else:
+            return None
 
     def create(self, validated_data):
         my_instance = LocationModel.objects.create(
