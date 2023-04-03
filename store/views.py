@@ -134,6 +134,21 @@ class DashBoardList(generics.ListCreateAPIView):
     serializer_class = DashBoardSerializer
     queryset = DashBoardModel.objects.all()
 
+class DashBoardSearchView(APIView):
+    serializer_class = DashBoardSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['date']
+       
+        query_list = query.split('-')
+        
+        items = DashBoardModel.objects.filter(created_at__day=query_list[2],
+                                              created_at__month=query_list[1],
+                                              created_at__year=query_list[0])
+
+        serializer = self.serializer_class(items, many=True)
+        return Response(serializer.data)
+
 
 class LocationView(APIView):
     serializer_class = LoacationSerializer
