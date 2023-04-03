@@ -19,6 +19,7 @@ urlpatterns = [
     path('searchItem/', ItemSearchView.as_view(), name='searchItem'), 
     ## http://127.0.0.1:8000/api/store/searchItem/?search=query
     path('dashboardList/', DashBoardList.as_view(), name='dashBoard-list'), #ok
+    # http://127.0.0.1:8000/api/store/dashboardList/?search=230&search_fields=sold_at
     path('location/', LocationView.as_view(), name='location'),
     ## http://127.0.0.1:8000/api/store/location/?location=
     path('locationDelete/<int:pk>', LocationDelete.as_view(), name='location-delete'),

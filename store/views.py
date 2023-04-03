@@ -130,8 +130,10 @@ def filters(query):
 
 
 class DashBoardList(generics.ListCreateAPIView):
+    filter_backends = (DynamicSearchFilter,)
     serializer_class = DashBoardSerializer
     queryset = DashBoardModel.objects.all()
+
 
 class LocationView(APIView):
     serializer_class = LoacationSerializer
