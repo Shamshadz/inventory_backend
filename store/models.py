@@ -50,6 +50,7 @@ class LocationModel(models.Model):
 class DashBoardModel(models.Model):
     item_code = models.CharField(max_length=1024,blank=True,null=True)
     description = models.CharField(max_length=1024,null=True, blank=True)
+    quantity = models.PositiveBigIntegerField(default=1)
     sold_to = models.CharField(max_length=1024,null=True,blank=True)
     sold_at = models.CharField(max_length=1024,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
