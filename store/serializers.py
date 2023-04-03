@@ -125,7 +125,6 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class DashBoardSerializer(serializers.ModelSerializer):
-    item = ItemSerializer()
 
     class Meta:
         model = DashBoardModel
@@ -133,14 +132,16 @@ class DashBoardSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        item_data = validated_data.pop('item')
-       
-        item = DashBoardModel.objects.get_or_create(**item_data)
-        
-        DashBoard = ItemModel.objects.create(
-            item =item[0] , **validated_data)
-        
-        return DashBoard
+        try:
+            dashBoard = DashBoardModel.objects.create(
+                **validated_data
+            )
+            dashBoard.save()
+            return dashBoard
+        except IntegrityError as e:
+            raise serializers.ValidationError({
+                "errors": str(e)
+            })
     
 class LoacationSerializer(serializers.ModelSerializer):
     photo_url = serializers.SerializerMethodField()

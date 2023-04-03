@@ -48,12 +48,11 @@ class LocationModel(models.Model):
         return self.location
 
 class DashBoardModel(models.Model):
-    item = models.ForeignKey(
-        ItemModel, related_name='item', on_delete=models.CASCADE
-    )
+    item_code = models.CharField(max_length=1024,blank=True,null=True)
+    description = models.CharField(max_length=1024,null=True, blank=True)
     sold_to = models.CharField(max_length=1024,null=True,blank=True)
     sold_at = models.CharField(max_length=1024,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.item.item_code
+        return self.item_code
