@@ -168,6 +168,7 @@ class LoacationSerializer(serializers.ModelSerializer):
         return my_instance
 
 class QNotifierSerializer(serializers.ModelSerializer):
+    vehicle_name = VehicleSerializer()
 
     class Meta:
         model = ItemModel
