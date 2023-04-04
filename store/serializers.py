@@ -166,3 +166,9 @@ class LoacationSerializer(serializers.ModelSerializer):
             location=validated_data.get('location'),
         )
         return my_instance
+
+class QNotifierSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ItemModel
+        fields = ['id', 'quantity','description']

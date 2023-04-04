@@ -1,5 +1,6 @@
 from store.serializers import (ItemSerializer, CompanySerializer, VCompanySerializer,
-                                VehicleSerializer, DashBoardSerializer, LoacationSerializer)
+                                VehicleSerializer, DashBoardSerializer,
+                                 QNotifierSerializer, LoacationSerializer)
 from store.models import (ItemModel, CompanyModel, VehicleModel, VCompanyModel, 
                           DashBoardModel, LocationModel)
 from rest_framework import generics, status
@@ -187,3 +188,7 @@ class LocationDelete(APIView):
             os.remove(location.photo.path)
         location.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class QNotifierList(generics.ListAPIView):
+    serializer_class = QNotifierSerializer
+    queryset = ItemModel.objects.all()
