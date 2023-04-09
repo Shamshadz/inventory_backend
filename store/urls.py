@@ -53,3 +53,11 @@ urlpatterns = [
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+### https://shamhadchoudhary.pythonanywhere.com/api/store/medicines/
+### https://shamhadchoudhary.pythonanywhere.com/api/store/medicine/2
+### https://shamhadchoudhary.pythonanywhere.com/api/store/medSearch/?search=ctl&search_fields=description
+### https://shamhadchoudhary.pythonanywhere.com/api/store/searchMed/?search=query
+### https://shamhadchoudhary.pythonanywhere.com/api/store/medDashboard/?date=date
+### https://shamhadchoudhary.pythonanywhere.com/api/store/medLocation/?location=A4
+### https://shamhadchoudhary.pythonanywhere.com/api/store/medLocationDelete/2
+### https://shamhadchoudhary.pythonanywhere.com/api/store/mqNotifier/
