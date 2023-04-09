@@ -173,3 +173,85 @@ class QNotifierSerializer(serializers.ModelSerializer):
     class Meta:
         model = ItemModel
         fields = ['id', 'quantity','description', 'vehicle_name']
+
+
+
+#### Medical Serializers
+from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
+
+class MedicineSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MedicineModel
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            medicine = MedicineModel.objects.create(
+               **validated_data
+            )
+            medicine.save()
+            return medicine
+        except IntegrityError as e:
+            raise serializers.ValidationError({
+                "errors": str(e)
+            })
+    
+    def update(self, instance, validated_data):
+
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
+        instance.save()
+        return instance
+    
+
+
+class MedDashBoardSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MedDashBoardModel
+        fields = '__all__'
+
+
+    def create(self, validated_data):
+        try:
+            dashBoard = MedDashBoardModel.objects.create(
+                **validated_data
+            )
+            dashBoard.save()
+            return dashBoard
+        except IntegrityError as e:
+            raise serializers.ValidationError({
+                "errors": str(e)
+            })
+    
+class MedLoacationSerializer(serializers.ModelSerializer):
+    photo_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = MedLocationModel
+        fields = ['id', 'location' , 'photo', 'photo_url']
+
+    def get_photo_url(self, obj):
+        request = self.context.get('request')
+        if obj.photo:
+            photo_url = obj.photo.url
+            if request is not None:
+                photo_url = request.build_absolute_uri(photo_url)
+            return photo_url
+        else:
+            return None
+
+    def create(self, validated_data):
+        my_instance = MedLocationModel.objects.create(
+            photo=validated_data.get('photo'),
+            location=validated_data.get('location'),
+        )
+        return my_instance
+
+class MQNotifierSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MedicineModel
+        fields = ['id', 'name', 'quantity','description']

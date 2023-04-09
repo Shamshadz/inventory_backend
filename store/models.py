@@ -57,3 +57,32 @@ class DashBoardModel(models.Model):
 
     def __str__(self):
         return self.item_code
+    
+
+
+#### Medical Model
+class MedicineModel(models.Model):
+    name = models.CharField('Medicine Name', max_length=1024)
+    manufacturer = models.CharField("Manufacturer", max_length=1024)
+    category = models.CharField("Category", max_length=1024)
+    description = models.TextField("Description or Ingredient", max_length=1024)
+    price = models.PositiveBigIntegerField("Medicine Price")
+    quantity = models.PositiveBigIntegerField("Quantity")
+    location = models.CharField("Rack Location Medicine", max_length=1024)
+    
+class MedLocationModel(models.Model):
+    photo = models.ImageField(blank=True,null=True)
+    location = models.CharField(max_length=1024)
+
+    def __str__(self):
+        return self.location
+    
+class MedDashBoardModel(models.Model):
+    name = models.CharField(max_length=1024,blank=True,null=True)
+    description = models.CharField(max_length=1024,null=True, blank=True)
+    quantity = models.PositiveBigIntegerField(default=1)
+    sold_at = models.CharField(max_length=1024,null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

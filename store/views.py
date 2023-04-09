@@ -192,3 +192,127 @@ class LocationDelete(APIView):
 class QNotifierList(generics.ListAPIView):
     serializer_class = QNotifierSerializer
     queryset = ItemModel.objects.all()
+
+
+
+#### Medical views
+from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
+from store.serializers import (MedicineSerializer, MedLoacationSerializer, MedDashBoardSerializer, MQNotifierSerializer)
+
+# Create your views here.
+
+# ok
+class MedicineList(generics.ListCreateAPIView):
+    serializer_class = MedicineSerializer
+    queryset = MedicineModel.objects.all()
+
+# ok
+class MedicineDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = MedicineModel.objects.all()
+    serializer_class = MedicineSerializer
+
+# ok
+# class ItemsListView(generics.ListAPIView):
+#     serializer_class = MedicineSerializer
+
+#     def get_queryset(self):
+#         vehicle = self.kwargs['vehicle']
+#         vehicle = MedicineModel.objects.get(vehicle_name=vehicle)
+#         return ItemModel.objects.filter(vehicle_name=vehicle.id)
+
+#     def get(self, request, vehicle, format=None):
+#         queryset = self.get_queryset()
+#         serializer = MedicineSerializer(queryset, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+class MedSearchAPIView(generics.ListAPIView):
+    filter_backends = (DynamicSearchFilter,)
+    queryset = MedicineModel.objects.all()
+    serializer_class = MedicineSerializer
+
+
+class MedSearchView(APIView):
+    serializer_class = MedicineSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['search']
+
+        query_list = filters(query)
+        queryset_list  = []
+
+        for query in query_list:
+            queryset = MedicineModel.objects.filter(Q(name__icontains=query) | 
+                                                Q(manufacturer__icontains=query) |
+                                                Q(category__icontains = query) |
+                                                  Q(description__icontains=query)
+                                                | Q(location__icontains=query))
+            for i in queryset:
+                queryset_list.append(i)
+            
+        queryset_list = [*set(queryset_list)]
+
+        serializer = self.serializer_class(queryset_list, many=True)
+        return Response(serializer.data)
+
+
+class MedDashBoardList(generics.ListCreateAPIView):
+    filter_backends = (DynamicSearchFilter,)
+    serializer_class = MedDashBoardSerializer
+    queryset = MedDashBoardModel.objects.all()
+
+class MedDashBoardSearchView(APIView):
+    serializer_class = MedDashBoardSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['date']
+       
+        query_list = query.split('-')
+        
+        items = MedDashBoardModel.objects.filter(created_at__day=query_list[2],
+                                              created_at__month=query_list[1],
+                                              created_at__year=query_list[0])
+
+        serializer = self.serializer_class(items, many=True)
+        return Response(serializer.data)
+
+
+class MedLocationView(APIView):
+    serializer_class = MedLoacationSerializer
+
+    def get(self, request, format=None):
+        query = request.GET['location']
+        location = MedLocationModel.objects.filter(Q(location__icontains=query))
+
+        serializer = self.serializer_class(location, many=True, context={"request":request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    def post(self, request, format=None):
+        
+        serializer = MedLoacationSerializer(data = request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class MedLocationDelete(APIView):
+    serializer_class = MedLoacationSerializer
+
+    def get_object(self, pk):
+        try:
+            return MedLocationModel.objects.get(pk=pk)
+        except MedLocationModel.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk, format=None):
+        location = self.get_object(pk)
+        if len(location.photo) > 2:
+            os.remove(location.photo.path)
+        location.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class MQNotifierList(generics.ListAPIView):
+    serializer_class = MQNotifierSerializer
+    queryset = MedicineModel.objects.all()

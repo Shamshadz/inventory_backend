@@ -9,3 +9,10 @@ admin.site.register(VehicleModel)
 admin.site.register(ItemModel)
 admin.site.register(DashBoardModel)
 admin.site.register(LocationModel)
+
+## Medical Register Models
+from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
+
+admin.site.register(MedicineModel)
+admin.site.register(MedLocationModel)
+admin.site.register(MedDashBoardModel)
