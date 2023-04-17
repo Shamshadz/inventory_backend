@@ -1,7 +1,6 @@
 # Project-specific files
 media/
-static/
-static
+static/images
 */migrations/?0*
 .vscode
 
