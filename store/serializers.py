@@ -172,7 +172,7 @@ class QNotifierSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemModel
-        fields = ['id', 'quantity', 'description', 'vehicle_name']
+        fields = ['id', 'quantity', 'quantity_limit', 'description', 'vehicle_name']
 
 
 
