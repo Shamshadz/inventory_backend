@@ -121,7 +121,7 @@ class ItemSearchView(APIView):
             queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query)|
                                                  Q(vehicle_name__vcompany__vcompany_name__icontains=query) |
                                                 Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
-                                                | Q(location__icontains=query), Q(vehicle_name__vcompany__wheeler__icontains=wheeler))
+                                                | Q(location__icontains=query), Q(vehicle_name__wheeler__icontains=wheeler))
             for i in queryset:
                 queryset_list.append(i)
             

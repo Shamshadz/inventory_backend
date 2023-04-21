@@ -32,6 +32,7 @@ class ItemModel(models.Model):
     description = models.CharField(max_length=1024, blank=False)
     location = models.CharField(max_length=1024, blank=False)
     quantity = models.PositiveIntegerField(default=0)
+    quantity_limit = models.IntegerField(default=2)
     MRP = models.CharField(max_length=1024, blank=False)
     mech_selling_pr = models.CharField(max_length=1024)
     cust_selling_pr = models.CharField(max_length=1024)
