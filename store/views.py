@@ -207,7 +207,8 @@ class DelayTranscationView(generics.ListCreateAPIView):
             data = DelayTranscation.objects.get(id=id)
             print("at line 208")
         except:
-            data = DelayTranscation.objects.all()
+            is_pending = self.request.query_params.get('is_pending')
+            data = DelayTranscation.objects.filter(is_pending=is_pending)
         return data
 
     def list(self, request, *args, **kwargs):

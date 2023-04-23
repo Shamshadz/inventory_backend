@@ -35,6 +35,7 @@ urlpatterns = [
     path('qNotifier/',QNotifierList.as_view(), name='quantity-notifier'),
     path('delay-transcation', DelayTranscationView.as_view()),
     # http://127.0.0.1:8000/api/store/delay-transcation?id=3
+    # http://127.0.0.1:8000/api/store/delay-transcation?is_pending=True
     path('update-delay-transcation/<str:pk>', TranscationUpdateView.as_view()),
     # http://127.0.0.1:8000/api/store/update-delay-transcation/3
 
