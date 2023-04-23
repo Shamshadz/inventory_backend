@@ -59,6 +59,16 @@ class DashBoardModel(models.Model):
     def __str__(self):
         return self.item_code
     
+class DelayTranscation(models.Model):
+    name = models.CharField(max_length=1024,blank=True)
+    description = models.CharField(max_length=1023,blank=True)
+    amount = models.IntegerField(null=False, blank=True)
+    deadline = models.DateField(null=True, blank=True)
+    is_pending = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.amount) + "  " + self.name
 
 
 #### Medical Model

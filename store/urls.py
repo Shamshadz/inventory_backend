@@ -5,7 +5,9 @@ from store.views import ( CompanyView, VCompanyView, VehicleView, ItemList ,
                           ItemDetail, ItemsListView, SearchAPIView,
                           VehicleSearchView, ItemSearchView, DashBoardSearchView,
                           DashBoardList, LocationView, LocationDelete,
-                          QNotifierList, MedicineList, MedicineDetail, MedSearchAPIView, MedSearchView ,
+                          QNotifierList, DelayTranscationView, TranscationUpdateView,
+                          MedicineList, MedicineDetail, 
+                          MedSearchAPIView, MedSearchView ,
                           MedDashBoardList, MedDashBoardSearchView, MedLocationView,
                           MedLocationDelete, MQNotifierList, )
 
@@ -31,6 +33,10 @@ urlpatterns = [
     path('locationDelete/<int:pk>', LocationDelete.as_view(), name='location-delete'),
     # http://127.0.0.1:8000/api/store/searchItem/?search=hiran
     path('qNotifier/',QNotifierList.as_view(), name='quantity-notifier'),
+    path('delay-transcation', DelayTranscationView.as_view()),
+    # http://127.0.0.1:8000/api/store/delay-transcation?id=3
+    path('update-delay-transcation/<str:pk>', TranscationUpdateView.as_view()),
+    # http://127.0.0.1:8000/api/store/update-delay-transcation/3
 
 ] + [
     ## medical url patterns

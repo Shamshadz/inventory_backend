@@ -1,8 +1,8 @@
 from store.serializers import (ItemSerializer, CompanySerializer, VCompanySerializer,
-                                VehicleSerializer, DashBoardSerializer,
+                                VehicleSerializer, DashBoardSerializer, DelayTranscationSerializer,
                                  QNotifierSerializer, LoacationSerializer)
 from store.models import (ItemModel, CompanyModel, VehicleModel, VCompanyModel, 
-                          DashBoardModel, LocationModel)
+                          DashBoardModel, LocationModel, DelayTranscation)
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -198,9 +198,43 @@ class QNotifierList(generics.ListAPIView):
     serializer_class = QNotifierSerializer
     queryset = ItemModel.objects.all()
 
+class DelayTranscationView(generics.ListCreateAPIView):
+    serializer_class = DelayTranscationSerializer
+
+    def get_queryset(self):
+        try:
+            id = self.request.query_params.get('id')
+            data = DelayTranscation.objects.get(id=id)
+            print("at line 208")
+        except:
+            data = DelayTranscation.objects.all()
+        return data
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        print(" line 215")
+        if self.request.query_params.get('id'):
+            serializer = self.serializer_class(queryset)
+        else:
+            serializer = self.serializer_class(queryset,many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class TranscationUpdateView(APIView):
+    def get_object(self, pk):
+        return DelayTranscation.objects.get(pk=pk)
+
+    def patch(self, request, pk):
+        DelayTranscation_object = self.get_object(pk)
+        serializer = DelayTranscationSerializer(DelayTranscation_object, data=request.data, partial=True) # set partial=True to update a data partially
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_409_CONFLICT)
 
 
 #### Medical views
+################################################################################################
+###############################################################################################
 from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
 from store.serializers import (MedicineSerializer, MedLoacationSerializer, MedDashBoardSerializer, MQNotifierSerializer)
 

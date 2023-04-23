@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from store.models import ItemModel, VCompanyModel, CompanyModel, VehicleModel, DashBoardModel, LocationModel
+from store.models import (ItemModel, VCompanyModel, CompanyModel, VehicleModel,
+                           DashBoardModel, LocationModel, DelayTranscation)
 from django.db import IntegrityError
 
 
@@ -174,9 +175,13 @@ class QNotifierSerializer(serializers.ModelSerializer):
         model = ItemModel
         fields = ['id', 'quantity', 'quantity_limit', 'description', 'vehicle_name']
 
-
+class DelayTranscationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DelayTranscation
+        fields = '__all__'
 
 #### Medical Serializers
+######################################################################################
 from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
 
 class MedicineSerializer(serializers.ModelSerializer):
