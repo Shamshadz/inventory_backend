@@ -35,8 +35,11 @@ class VehicleSearchView(APIView):
     def get(self, request, format=None):
         query = request.GET['search']
 
-        wheeler = query.split('-')[1]
-        query = query.split('-')[0]
+        try:
+            wheeler = query.split('-')[1]
+            query = query.split('-')[0]
+        except:
+            wheeler = "2 Wheeler"
         query_list = filters(query)
         print(query_list)
         queryset_list  = []
@@ -110,9 +113,14 @@ class ItemSearchView(APIView):
 
     def get(self, request, format=None):
         query = request.GET['search']
-
-        wheeler = query.split('-')[1]
-        query = query.split('-')[0]
+        
+        try:
+            wheeler = query.split('-')[1]
+            print(wheeler)
+            query = query.split('-')[0]
+        except:
+            wheeler = "2 Wheeler"
+        print(wheeler)
         query_list = filters(query)
         print(query_list)
         queryset_list  = []
@@ -231,6 +239,13 @@ class TranscationUpdateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         return Response(status=status.HTTP_409_CONFLICT)
+
+    def delete(self, request, pk):
+        DelayTranscation_object = self.get_object(pk)
+        DelayTranscation_object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        
+
 
 
 #### Medical views
