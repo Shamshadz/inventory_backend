@@ -70,7 +70,7 @@ class ItemSerializer(serializers.ModelSerializer):
         company = CompanyModel.objects.get_or_create(**company_data)
         vcompany = VCompanyModel.objects.get_or_create(vcompany_name =vehicle_data['vcompany']['vcompany_name'])
         vehicle = VehicleModel.objects.get_or_create(
-            vcompany =vcompany[0], vehicle_name =vehicle_data['vehicle_name'], wheeler=vehicle_data['wheeler'])
+            vcompany =vcompany[0], vehicle_name =vehicle_data['vehicle_name'])
         
         item = ItemModel.objects.create(
             company_name=company[0], vehicle_name =vehicle[0] , **validated_data)
@@ -107,10 +107,10 @@ class ItemSerializer(serializers.ModelSerializer):
 
         new_vcompany = VCompanyModel.objects.get_or_create(vcompany_name =vehicle_name_data['vcompany']['vcompany_name'])
         new_vehicle_name = VehicleModel.objects.get_or_create(vcompany =new_vcompany[0], 
-                                                        vehicle_name =vehicle_name_data['vehicle_name'], wheeler=vehicle_name_data['wheeler'])
+                                                        vehicle_name =vehicle_name_data['vehicle_name'])
         
         new_vehicle_name = new_vehicle_name[0]
-        vehicle_name_pk = VehicleModel.objects.get(vehicle_name =vehicle_name_data['vehicle_name'], wheeler=vehicle_name_data['wheeler']).id
+        vehicle_name_pk = VehicleModel.objects.get(vehicle_name =vehicle_name_data['vehicle_name']).id
 
 
         if vehicle_name_pk:

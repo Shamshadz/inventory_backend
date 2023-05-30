@@ -17,8 +17,6 @@ class VehicleModel(models.Model):
     vcompany = models.ForeignKey(
         VCompanyModel, related_name='vCompany', on_delete=models.CASCADE)
     vehicle_name = models.CharField(max_length=1024, blank=False)
-    wheelchoice = (("2 Wheeler","2"),("3 Wheeler","3"),("4 Wheeler","4"))
-    wheeler = models.CharField(max_length=10, choices=wheelchoice, default="2 wheeler")
 
     def __str__(self):
         return self.vehicle_name

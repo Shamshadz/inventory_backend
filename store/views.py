@@ -35,19 +35,13 @@ class VehicleSearchView(APIView):
     def get(self, request, format=None):
         query = request.GET['search']
 
-        try:
-            wheeler = query.split('-')[1]
-            query = query.split('-')[0]
-        except:
-            wheeler = "2 Wheeler"
         query_list = filters(query)
         print(query_list)
         queryset_list  = []
 
         for query in query_list:
             queryset = VehicleModel.objects.filter(Q(vehicle_name__icontains=query) |
-                                                 Q(vcompany__vcompany_name__icontains=query),
-                                                   Q(wheeler__icontains=wheeler))
+                                                 Q(vcompany__vcompany_name__icontains=query))
             for i in queryset:
                 queryset_list.append(i)
             
@@ -114,13 +108,6 @@ class ItemSearchView(APIView):
     def get(self, request, format=None):
         query = request.GET['search']
         
-        try:
-            wheeler = query.split('-')[1]
-            print(wheeler)
-            query = query.split('-')[0]
-        except:
-            wheeler = "2 Wheeler"
-        print(wheeler)
         query_list = filters(query)
         print(query_list)
         queryset_list  = []
@@ -129,7 +116,7 @@ class ItemSearchView(APIView):
             queryset = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(company_name__company_name__icontains=query)|
                                                  Q(vehicle_name__vcompany__vcompany_name__icontains=query) |
                                                 Q(vehicle_name__vehicle_name__icontains=query) | Q(description__icontains=query)
-                                                | Q(location__icontains=query), Q(vehicle_name__wheeler__icontains=wheeler))
+                                                | Q(location__icontains=query))
             for i in queryset:
                 queryset_list.append(i)
             
