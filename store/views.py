@@ -36,7 +36,6 @@ class VehicleSearchView(APIView):
         query = request.GET['search']
 
         query_list = filters(query)
-        print(query_list)
         queryset_list  = []
 
         for query in query_list:
@@ -109,7 +108,6 @@ class ItemSearchView(APIView):
         query = request.GET['search']
         
         query_list = filters(query)
-        print(query_list)
         queryset_list  = []
 
         for query in query_list:
@@ -293,7 +291,6 @@ class MedSearchView(APIView):
                 queryset = MedicineModel.objects.filter(Q(category__category__icontains=query) |
                                                     Q(name__icontains=query) | 
                                                     Q(manufacturer__icontains=query) |
-                                                    Q(category__icontains = query) |
                                                     Q(description__icontains=query) |
                                                     Q(location__icontains=query))
                 for i in queryset:

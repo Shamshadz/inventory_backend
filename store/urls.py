@@ -51,11 +51,8 @@ urlpatterns = [
     path('medDashboardList/', MedDashBoardList.as_view(), name='med-dashBoard-list'), #ok
     # http://127.0.0.1:8000/api/store/dashboardList/?search=230&search_fields=sold_at
     path('medDashboard/', MedDashBoardSearchView.as_view(), name='med-dashBoard-search'), # ok
-    # http://127.0.0.1:8000/api/store/dashboard/?date=date
     path('medLocation/', MedLocationView.as_view(), name='med-location'),
-    ## http://127.0.0.1:8000/api/store/location/?location=
     path('medLocationDelete/<int:pk>', MedLocationDelete.as_view(), name='med-location-delete'),
-    # http://127.0.0.1:8000/api/store/searchItem/?search=hiran
     path('mqNotifier/',MQNotifierList.as_view(), name='med-quantity-notifier'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
