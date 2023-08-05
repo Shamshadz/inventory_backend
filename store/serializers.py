@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from store.models import (ItemModel, VCompanyModel, CompanyModel, VehicleModel,
-                           DashBoardModel, LocationModel, DelayTranscation)
+                           DashBoardModel, LocationModel, DelayTranscation,
+                        )
 from django.db import IntegrityError
 
 
@@ -182,7 +183,26 @@ class DelayTranscationSerializer(serializers.ModelSerializer):
 
 #### Medical Serializers
 ######################################################################################
-from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
+from store.models import (MedicineCategoryModel, MedicineModel, MedLocationModel, 
+                           MedDashBoardModel)
+
+class MedicineCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicineCategoryModel
+        fields = '__all__'
+
+    def create(self, validated_data):
+        try:
+            category = MedicineCategoryModel.objects.create(
+                category=validated_data['category'],
+            )
+            category.save()
+            return category
+        except IntegrityError as e:
+            raise serializers.ValidationError({
+                "errors": str(e)
+            })
+        
 
 class MedicineSerializer(serializers.ModelSerializer):
 
@@ -192,11 +212,12 @@ class MedicineSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            medicine = MedicineModel.objects.create(
-               **validated_data
-            )
-            medicine.save()
-            return medicine
+            category_data = validated_data.pop('category')
+
+            category = MedicineCategoryModel.objects.get_or_create(category_data)
+            medicine = MedicineModel.objects.get_or_create(category=category[0], **validated_data)
+
+            return medicine[0]
         except IntegrityError as e:
             raise serializers.ValidationError({
                 "errors": str(e)
@@ -259,4 +280,4 @@ class MQNotifierSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicineModel
-        fields = ['id', 'name', 'quantity','description']
+        fields = '__id__'

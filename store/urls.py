@@ -6,7 +6,7 @@ from store.views import ( CompanyView, VCompanyView, VehicleView, ItemList ,
                           VehicleSearchView, ItemSearchView, DashBoardSearchView,
                           DashBoardList, LocationView, LocationDelete,
                           QNotifierList, DelayTranscationView, TranscationUpdateView,
-                          MedicineList, MedicineDetail, 
+                          MedicineCategoryList, MedicineList, MedicineDetail, 
                           MedSearchAPIView, MedSearchView ,
                           MedDashBoardList, MedDashBoardSearchView, MedLocationView,
                           MedLocationDelete, MQNotifierList, )
@@ -41,13 +41,13 @@ urlpatterns = [
 
 ] + [
     ## medical url patterns
+    path('categories/', MedicineCategoryList.as_view()), #ok
     path('medicines/', MedicineList.as_view(), name='medicines-list'), #ok
     path('medicine/<int:pk>/', MedicineDetail.as_view(), name='medicine-detail'), #ok
-    # path('items/<str:vehicle>/', ItemsListView.as_view()),
     path('medSearch/', MedSearchAPIView.as_view(), name='med-search'),
-    ## https://shamhadchoudhary.pythonanywhere.com/api/store/medSearch/?search=hero&search_fields=vehicle_name__vcompany__vcompany_name
+    ## {{localhost:8000}}/api/store/medSearch/?search=Anti-biotic&search_fields=category__category
     path('searchMed/', MedSearchView.as_view(), name='searchMed'), 
-    ## http://127.0.0.1:8000/api/store/searchItem/?search=query
+    ## {{localhost:8000}}/api/store/searchMed/?search=query
     path('medDashboardList/', MedDashBoardList.as_view(), name='med-dashBoard-list'), #ok
     # http://127.0.0.1:8000/api/store/dashboardList/?search=230&search_fields=sold_at
     path('medDashboard/', MedDashBoardSearchView.as_view(), name='med-dashBoard-search'), # ok

@@ -238,10 +238,15 @@ class TranscationUpdateView(APIView):
 #### Medical views
 ################################################################################################
 ###############################################################################################
-from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
-from store.serializers import (MedicineSerializer, MedLoacationSerializer, MedDashBoardSerializer, MQNotifierSerializer)
+from store.models import (MedicineCategoryModel, MedicineModel, MedLocationModel, MedDashBoardModel)
+from store.serializers import (MedicineCategorySerializer, MedicineSerializer, MedLoacationSerializer, MedDashBoardSerializer, MQNotifierSerializer)
 
 # Create your views here.
+
+# ok
+class MedicineCategoryList(generics.ListCreateAPIView):
+    serializer_class = MedicineCategorySerializer
+    queryset = MedicineCategoryModel.objects.all()
 
 # ok
 class MedicineList(generics.ListCreateAPIView):
@@ -278,24 +283,28 @@ class MedSearchView(APIView):
     serializer_class = MedicineSerializer
 
     def get(self, request, format=None):
-        query = request.GET['search']
+        try:
+            query = request.GET['search']
 
-        query_list = filters(query)
-        queryset_list  = []
+            query_list = filters(query)
+            queryset_list  = []
 
-        for query in query_list:
-            queryset = MedicineModel.objects.filter(Q(name__icontains=query) | 
-                                                Q(manufacturer__icontains=query) |
-                                                Q(category__icontains = query) |
-                                                  Q(description__icontains=query)
-                                                | Q(location__icontains=query))
-            for i in queryset:
-                queryset_list.append(i)
-            
-        queryset_list = [*set(queryset_list)]
+            for query in query_list:
+                queryset = MedicineModel.objects.filter(Q(category__category__icontains=query) |
+                                                    Q(name__icontains=query) | 
+                                                    Q(manufacturer__icontains=query) |
+                                                    Q(category__icontains = query) |
+                                                    Q(description__icontains=query) |
+                                                    Q(location__icontains=query))
+                for i in queryset:
+                    queryset_list.append(i)
+                
+            queryset_list = [*set(queryset_list)]
 
-        serializer = self.serializer_class(queryset_list, many=True)
-        return Response(serializer.data)
+            serializer = self.serializer_class(queryset_list, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({"error":str(e), "success":False})
 
 
 class MedDashBoardList(generics.ListCreateAPIView):

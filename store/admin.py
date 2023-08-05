@@ -12,8 +12,9 @@ admin.site.register(LocationModel)
 admin.site.register(DelayTranscation)
 
 ## Medical Register Models
-from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel)
+from store.models import (MedicineModel, MedLocationModel, MedDashBoardModel, MedicineCategoryModel)
 
+admin.site.register(MedicineCategoryModel)
 admin.site.register(MedicineModel)
 admin.site.register(MedLocationModel)
 admin.site.register(MedDashBoardModel)

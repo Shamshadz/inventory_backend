@@ -70,14 +70,25 @@ class DelayTranscation(models.Model):
 
 
 #### Medical Model
+class MedicineCategoryModel(models.Model):
+    category = models.CharField('medicine_category', max_length=1024)
+
+    def __str__(self):
+        return self.category
+
 class MedicineModel(models.Model):
+    category = models.ForeignKey(MedicineCategoryModel, on_delete=models.CASCADE)
     name = models.CharField('Medicine Name', max_length=1024)
     manufacturer = models.CharField("Manufacturer", max_length=1024)
-    category = models.CharField("Category", max_length=1024)
     description = models.TextField("Description or Ingredient", max_length=1024)
-    price = models.PositiveBigIntegerField("Medicine Price")
+    price = models.PositiveIntegerField("Medicine Price")
+    customer_price = models.PositiveIntegerField("Customer Selling Price",null=True)
     quantity = models.PositiveBigIntegerField("Quantity")
     location = models.CharField("Rack Location Medicine", max_length=1024)
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
+
+    def __str__(self):
+        return self.name
     
 class MedLocationModel(models.Model):
     photo = models.ImageField(blank=True,null=True)
@@ -87,6 +98,7 @@ class MedLocationModel(models.Model):
         return self.location
     
 class MedDashBoardModel(models.Model):
+    category = models.CharField(max_length=1024,blank=True,null=True)
     name = models.CharField(max_length=1024,blank=True,null=True)
     description = models.CharField(max_length=1024,null=True, blank=True)
     quantity = models.PositiveBigIntegerField(default=1)
