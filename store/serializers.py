@@ -226,12 +226,26 @@ class MedicineSerializer(serializers.ModelSerializer):
             })
     
     def update(self, instance, validated_data):
-
-        for key, value in validated_data.items():
-            setattr(instance, key, value)
-
-        instance.save()
-        return instance
+        try:
+            category_data = validated_data.pop('category')
+            category_instance, _ = MedicineCategoryModel.objects.get_or_create(**category_data)
+            
+            instance.category = category_instance
+            instance.name = validated_data.get('name', instance.name)
+            instance.manufacturer = validated_data.get('manufacturer', instance.manufacturer)
+            instance.description = validated_data.get('description', instance.description)
+            instance.price = validated_data.get('price', instance.price)
+            instance.customer_price = validated_data.get('customer_price', instance.customer_price)
+            instance.quantity = validated_data.get('quantity', instance.quantity)
+            instance.quantity_limit = validated_data.get('quantity_limit', instance.quantity_limit)
+            instance.location = validated_data.get('location', instance.location)
+            instance.save()
+            
+            return instance
+        except IntegrityError as e:
+            raise serializers.ValidationError({
+                "errors": str(e)
+            })
     
 
 
