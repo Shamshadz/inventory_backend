@@ -216,7 +216,7 @@ class MedicineSerializer(serializers.ModelSerializer):
         try:
             category_data = validated_data.pop('category')
 
-            category = MedicineCategoryModel.objects.get_or_create(category=category_data['category'])
+            category = MedicineCategoryModel.objects.get_or_create(**category_data)
             medicine = MedicineModel.objects.get_or_create(category=category[0], **validated_data)
 
             return medicine[0]
