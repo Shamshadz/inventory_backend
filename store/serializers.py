@@ -205,6 +205,8 @@ class MedicineCategorySerializer(serializers.ModelSerializer):
         
 
 class MedicineSerializer(serializers.ModelSerializer):
+    # category_name = serializers.CharField(source='category.category', read_only=True)
+    category = MedicineCategorySerializer()
 
     class Meta:
         model = MedicineModel
@@ -214,7 +216,7 @@ class MedicineSerializer(serializers.ModelSerializer):
         try:
             category_data = validated_data.pop('category')
 
-            category = MedicineCategoryModel.objects.get_or_create(category_data)
+            category = MedicineCategoryModel.objects.get_or_create(category=category_data['category'])
             medicine = MedicineModel.objects.get_or_create(category=category[0], **validated_data)
 
             return medicine[0]
@@ -280,4 +282,4 @@ class MQNotifierSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicineModel
-        fields = '__id__'
+        fields = '__all__'

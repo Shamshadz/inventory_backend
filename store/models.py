@@ -84,6 +84,7 @@ class MedicineModel(models.Model):
     price = models.PositiveIntegerField("Medicine Price")
     customer_price = models.PositiveIntegerField("Customer Selling Price",null=True)
     quantity = models.PositiveBigIntegerField("Quantity")
+    quantity_limit = models.IntegerField(default=2)
     location = models.CharField("Rack Location Medicine", max_length=1024)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
 
