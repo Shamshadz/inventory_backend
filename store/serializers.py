@@ -293,6 +293,7 @@ class MedLoacationSerializer(serializers.ModelSerializer):
         return my_instance
 
 class MQNotifierSerializer(serializers.ModelSerializer):
+    category = MedicineCategorySerializer()
 
     class Meta:
         model = MedicineModel
