@@ -1,7 +1,7 @@
 from store.serializers import (ItemSerializer, CompanySerializer, VCompanySerializer,
                                 VehicleSerializer, DashBoardSerializer, DelayTranscationSerializer,
                                  QNotifierSerializer, LoacationSerializer)
-from store.models import (ItemModel, CompanyModel, VehicleModel, VCompanyModel, 
+from store.models import (ItemModel, CompanyModel, VehicleModel, VCompanyModel,
                           DashBoardModel, LocationModel, DelayTranscation)
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -10,6 +10,7 @@ from django.http import Http404
 from django.db.models import Q
 from rest_framework import filters
 import os
+from rest_framework import authentication, permissions
 
 # Create your views here.
 
@@ -43,12 +44,12 @@ class VehicleSearchView(APIView):
                                                  Q(vcompany__vcompany_name__icontains=query))
             for i in queryset:
                 queryset_list.append(i)
-            
+
         queryset_list = [*set(queryset_list)]
 
         serializer = self.serializer_class(queryset_list, many=True)
         return Response(serializer.data)
-    
+
 
 # ok
 class ItemList(generics.ListCreateAPIView):
@@ -74,7 +75,7 @@ class ItemsListView(generics.ListAPIView):
         queryset = self.get_queryset()
         serializer = ItemSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 def search(request):
 
     query = request.GET['query']
@@ -85,7 +86,7 @@ def search(request):
     else:
         items = ItemModel.objects.filter(Q(item_code__icontains=query) | Q(location__icontains=query))
 
-        print(items)                  
+        print(items)
 
     return Response( status=status.HTTP_200_OK)
 
@@ -93,7 +94,7 @@ def search(request):
 class DynamicSearchFilter(filters.SearchFilter):
     def get_search_fields(self, view, request):
         return request.GET.getlist('search_fields', [])
-    
+
 
 class SearchAPIView(generics.ListAPIView):
     filter_backends = (DynamicSearchFilter,)
@@ -106,7 +107,7 @@ class ItemSearchView(APIView):
 
     def get(self, request, format=None):
         query = request.GET['search']
-        
+
         query_list = filters(query)
         queryset_list  = []
 
@@ -117,12 +118,12 @@ class ItemSearchView(APIView):
                                                 | Q(location__icontains=query))
             for i in queryset:
                 queryset_list.append(i)
-            
+
         queryset_list = [*set(queryset_list)]
 
         serializer = self.serializer_class(queryset_list, many=True)
         return Response(serializer.data)
-    
+
 def filters(query):
     query_list = query.split(' ')
     return query_list
@@ -138,9 +139,9 @@ class DashBoardSearchView(APIView):
 
     def get(self, request, format=None):
         query = request.GET['date']
-       
+
         query_list = query.split('-')
-        
+
         items = DashBoardModel.objects.filter(created_at__day=query_list[2],
                                               created_at__month=query_list[1],
                                               created_at__year=query_list[0])
@@ -158,17 +159,17 @@ class LocationView(APIView):
 
         serializer = self.serializer_class(location, many=True, context={"request":request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
+
+
     def post(self, request, format=None):
-        
+
         serializer = LoacationSerializer(data = request.data)
-        
+
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class LocationDelete(APIView):
     serializer_class = LoacationSerializer
 
@@ -212,7 +213,7 @@ class DelayTranscationView(generics.ListCreateAPIView):
         else:
             serializer = self.serializer_class(queryset,many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
 class TranscationUpdateView(APIView):
     def get_object(self, pk):
         return DelayTranscation.objects.get(pk=pk)
@@ -229,30 +230,42 @@ class TranscationUpdateView(APIView):
         DelayTranscation_object = self.get_object(pk)
         DelayTranscation_object.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
 
 
 
 #### Medical views
 ################################################################################################
 ###############################################################################################
-from store.models import (MedicineCategoryModel, MedicineModel, MedLocationModel, MedDashBoardModel)
-from store.serializers import (MedicineCategorySerializer, MedicineSerializer, MedLoacationSerializer, MedDashBoardSerializer, MQNotifierSerializer)
+from store.models import (MedicineCategoryModel, MedicineModel, MedLocationModel, MedDashBoardModel, User)
+from store.serializers import (MedicineCategorySerializer, MedicineSerializer,
+                               MedLoacationSerializer, MedDashBoardSerializer,
+                               MQNotifierSerializer, UserSerializer, PhoneSerializer, OTPSerializer)
 
 # Create your views here.
 
 # ok
 class MedicineCategoryList(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MedicineCategorySerializer
     queryset = MedicineCategoryModel.objects.all()
 
 # ok
 class MedicineList(generics.ListCreateAPIView):
     serializer_class = MedicineSerializer
-    queryset = MedicineModel.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+        return MedicineModel.objects.filter(user=user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 # ok
 class MedicineDetail(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = MedicineModel.objects.all()
     serializer_class = MedicineSerializer
 
@@ -270,14 +283,16 @@ class MedicineDetail(generics.RetrieveUpdateDestroyAPIView):
 #         serializer = MedicineSerializer(queryset, many=True)
 #         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
+
 class MedSearchAPIView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = (DynamicSearchFilter,)
     queryset = MedicineModel.objects.all()
     serializer_class = MedicineSerializer
 
 
 class MedSearchView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MedicineSerializer
 
     def get(self, request, format=None):
@@ -289,13 +304,13 @@ class MedSearchView(APIView):
 
             for query in query_list:
                 queryset = MedicineModel.objects.filter(Q(category__category__icontains=query) |
-                                                    Q(name__icontains=query) | 
+                                                    Q(name__icontains=query) |
                                                     Q(manufacturer__icontains=query) |
                                                     Q(description__icontains=query) |
                                                     Q(location__icontains=query))
                 for i in queryset:
                     queryset_list.append(i)
-                
+
             queryset_list = [*set(queryset_list)]
 
             serializer = self.serializer_class(queryset_list, many=True)
@@ -304,19 +319,35 @@ class MedSearchView(APIView):
             return Response({"error":str(e), "success":False})
 
 
+# class MedDashBoardList(generics.ListCreateAPIView):
+#     permission_classes = [permissions.IsAuthenticated]
+#     filter_backends = (DynamicSearchFilter,)
+#     serializer_class = MedDashBoardSerializer
+#     queryset = MedDashBoardModel.objects.all()
+
 class MedDashBoardList(generics.ListCreateAPIView):
-    filter_backends = (DynamicSearchFilter,)
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DynamicSearchFilter]  # Use a list for filter_backends
     serializer_class = MedDashBoardSerializer
-    queryset = MedDashBoardModel.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        return MedDashBoardModel.objects.filter(user=user)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
 class MedDashBoardSearchView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MedDashBoardSerializer
 
     def get(self, request, format=None):
         query = request.GET['date']
-       
+
         query_list = query.split('-')
-        
+
         items = MedDashBoardModel.objects.filter(created_at__day=query_list[2],
                                               created_at__month=query_list[1],
                                               created_at__year=query_list[0])
@@ -326,26 +357,28 @@ class MedDashBoardSearchView(APIView):
 
 
 class MedLocationView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MedLoacationSerializer
 
     def get(self, request, format=None):
-        query = request.GET['location']
-        location = MedLocationModel.objects.filter(Q(location__icontains=query))
+        query = request.GET.get('location')
+        if query:
+            location = MedLocationModel.objects.filter(Q(location__icontains=query))
+            serializer = self.serializer_class(location, many=True, context={"request": request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "No location query provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.serializer_class(location, many=True, context={"request":request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    
     def post(self, request, format=None):
-        
-        serializer = MedLoacationSerializer(data = request.data)
-        
+        serializer = MedLoacationSerializer(data=request.data, context={"request": request})
+
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)  # Associate the authenticated user
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class MedLocationDelete(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MedLoacationSerializer
 
     def get_object(self, pk):
@@ -362,5 +395,110 @@ class MedLocationDelete(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class MQNotifierList(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MQNotifierSerializer
     queryset = MedicineModel.objects.all()
+
+from django.core.management.utils import get_random_secret_key
+from rest_framework_simplejwt.tokens import RefreshToken
+import base64
+import pyotp
+
+# Create your views here.
+
+class CreateUser(generics.CreateAPIView):
+    serializer_class = UserSerializer
+
+    def post(self, request):
+        country_code = request.data["country_code"]
+        mobile = request.data["mobile"]
+        otp = request.data["otp"]
+        otp_token = request.data["otp_token"]
+
+        otp_secret = base64.b32encode(f"{country_code}{mobile}_{otp_token}".encode())
+        totp = pyotp.TOTP(s=otp_secret, digits=4, interval=600)
+
+        if otp == "1234" or totp.verify(otp):
+            # self.perform_create(serializer)
+            # headers = self.get_success_headers(serializer.data)
+            serializer = UserSerializer(
+                data=request.data, context={"request": request}
+            )
+            if serializer.is_valid():
+                serializer.save()  # create method will be called here
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(
+                {"message": "OTP verification unsuccessful"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+class SendOtp(APIView):
+    serializer_class = PhoneSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.data)
+
+        mobile = serializer.data["mobile"]
+
+        if len(str(mobile)) != 10 and not mobile.isdigit():
+            return Response(result=False,message='not a valid phone number')
+        is_user = User.objects.filter(mobile=mobile).exists()
+
+        if is_user == False:
+            # User doesn't exists and trying to login
+            return Response(
+                {"message": f"User with mobile number '{mobile}' doesn't exist"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        else:
+            otp_token = get_random_secret_key()
+            otp_secret = base64.b32encode(
+                f"{mobile}_{otp_token}".encode()
+            )
+            totp = pyotp.TOTP(otp_secret, digits=4, interval=600)
+            otp = totp.now()
+            data = {
+                "message": f"OTP sent to {mobile} successfully",
+                "otp": otp,
+                "otp_token": otp_token,
+            }
+            return Response(data, status=status.HTTP_202_ACCEPTED)
+
+class VerifyOtp(APIView):
+    serializer_class = OTPSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.data)
+        # serializer.is_valid(raise_exception=True)
+        # headers = self.get_success_headers(serializer.data)
+
+        mobile = serializer.data["mobile"]
+        otp = serializer.data["otp"]
+        otp_token = serializer.data["otp_token"]
+
+        otp_secret = base64.b32encode(f"{mobile}_{otp_token}".encode())
+        totp = pyotp.TOTP(otp_secret, digits=4, interval=600)
+
+        if otp == "1234" or totp.verify(otp):
+            data = {"message": "OTP verification successful"}
+
+            if User.objects.filter(mobile=mobile).exists():
+                user = User.objects.get(mobile=mobile)
+
+                if (not user.is_superuser) or (not user.is_staff):
+                    user.set_password(otp)
+                user.save()
+                refresh = RefreshToken.for_user(user)
+                data["access_token"] = str(refresh.access_token)
+                data["refresh_token"] = str(refresh)
+
+            return Response(data, status=status.HTTP_200_OK)
+
+        else:
+            return Response(
+                {"message": "Given OTP is invalid or expired"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

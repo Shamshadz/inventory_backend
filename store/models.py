@@ -1,4 +1,41 @@
 from django.db import models
+   
+from django.contrib.auth.models import AbstractUser
+import os, uuid
+from django.core.validators import RegexValidator
+from .managers import UserManager
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+
+class User(AbstractUser):
+    def get_update_filename(self, filename):
+        ext = filename.split(".")[-1]
+        filename = "%s.%s" % (uuid.uuid4(), ext)
+        return os.path.join("profile", filename)
+
+    username = None
+    first_name = None
+    last_name = None
+
+    profile_pic = models.ImageField(
+        upload_to=get_update_filename,
+        default="profile/default_profile.jpg",
+    )
+    phone_regex = RegexValidator(
+        regex=r"^\+?1?\d{9,15}$", message="Please enter a valid phone number"
+    )
+    mobile = models.CharField(validators=[phone_regex], max_length=10, unique=True)
+    name = models.CharField(_("name"), max_length=1024)
+    email = models.EmailField(null=True, blank=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    USERNAME_FIELD = "mobile"
+    object = UserManager()
+
+    def __str__(self):
+        return self.name
 
 # Create your models here.
 class CompanyModel(models.Model):
@@ -75,8 +112,17 @@ class MedicineCategoryModel(models.Model):
 
     def __str__(self):
         return self.category
+    
+class MedLocationModel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True) ## remove null
+    photo = models.ImageField(blank=True,null=True)
+    location = models.CharField(max_length=1024)
 
+    def __str__(self):
+        return self.location
+    
 class MedicineModel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True) ## remove null
     category = models.ForeignKey(MedicineCategoryModel, on_delete=models.CASCADE)
     name = models.CharField('Medicine Name', max_length=1024)
     manufacturer = models.CharField("Manufacturer", max_length=1024)
@@ -85,20 +131,14 @@ class MedicineModel(models.Model):
     customer_price = models.PositiveIntegerField("Customer Selling Price",null=True)
     quantity = models.PositiveBigIntegerField("Quantity")
     quantity_limit = models.IntegerField(default=2)
-    location = models.CharField("Rack Location Medicine", max_length=1024)
+    location = models.ForeignKey(MedLocationModel, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
 
     def __str__(self):
         return self.name
     
-class MedLocationModel(models.Model):
-    photo = models.ImageField(blank=True,null=True)
-    location = models.CharField(max_length=1024)
-
-    def __str__(self):
-        return self.location
-    
 class MedDashBoardModel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True) ## remove null
     category = models.CharField(max_length=1024,blank=True,null=True)
     name = models.CharField(max_length=1024,blank=True,null=True)
     description = models.CharField(max_length=1024,null=True, blank=True)

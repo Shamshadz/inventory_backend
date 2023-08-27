@@ -184,7 +184,7 @@ class DelayTranscationSerializer(serializers.ModelSerializer):
 #### Medical Serializers
 ######################################################################################
 from store.models import (MedicineCategoryModel, MedicineModel, MedLocationModel, 
-                           MedDashBoardModel)
+                           MedDashBoardModel, User)
 
 class MedicineCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -213,17 +213,11 @@ class MedicineSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        try:
-            category_data = validated_data.pop('category')
-
-            category = MedicineCategoryModel.objects.get_or_create(**category_data)
-            medicine = MedicineModel.objects.get_or_create(category=category[0], **validated_data)
-
-            return medicine[0]
-        except IntegrityError as e:
-            raise serializers.ValidationError({
-                "errors": str(e)
-            })
+        user = self.context['request'].user  # Get the authenticated user
+        category_data = validated_data.pop('category')
+        category_instance, _ = MedicineCategoryModel.objects.get_or_create(**category_data)
+        medicine = MedicineModel.objects.create(user=user, category=category_instance, **validated_data)
+        return medicine
     
     def update(self, instance, validated_data):
         try:
@@ -257,16 +251,9 @@ class MedDashBoardSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        try:
-            dashBoard = MedDashBoardModel.objects.create(
-                **validated_data
-            )
-            dashBoard.save()
-            return dashBoard
-        except IntegrityError as e:
-            raise serializers.ValidationError({
-                "errors": str(e)
-            })
+        user = self.context['request'].user  # Get the authenticated user
+        dashBoard = MedDashBoardModel.objects.create(user=user, **validated_data)
+        return dashBoard
     
 class MedLoacationSerializer(serializers.ModelSerializer):
     photo_url = serializers.SerializerMethodField()
@@ -274,7 +261,7 @@ class MedLoacationSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedLocationModel
         fields = ['id', 'location' , 'photo', 'photo_url']
-
+    
     def get_photo_url(self, obj):
         request = self.context.get('request')
         if obj.photo:
@@ -286,7 +273,9 @@ class MedLoacationSerializer(serializers.ModelSerializer):
             return None
 
     def create(self, validated_data):
+        user = self.context['request'].user  # Get the authenticated user
         my_instance = MedLocationModel.objects.create(
+            user=user,
             photo=validated_data.get('photo'),
             location=validated_data.get('location'),
         )
@@ -298,3 +287,23 @@ class MQNotifierSerializer(serializers.ModelSerializer):
     class Meta:
         model = MedicineModel
         fields = '__all__'
+
+
+class UserSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = '__all__'
+
+class PhoneSerializer(serializers.Serializer):
+    mobile = serializers.CharField( required=True)
+
+    class Meta:
+        fields = ['mobile']
+
+class OTPSerializer(serializers.Serializer):
+    mobile = serializers.CharField( required=True)
+    otp = serializers.CharField( required=True)
+    otp_token = serializers.CharField( required=True)
+    class Meta:
+        fields = ['mobile', 'otp', 'otp_token']

@@ -9,7 +9,7 @@ from store.views import ( CompanyView, VCompanyView, VehicleView, ItemList ,
                           MedicineCategoryList, MedicineList, MedicineDetail, 
                           MedSearchAPIView, MedSearchView ,
                           MedDashBoardList, MedDashBoardSearchView, MedLocationView,
-                          MedLocationDelete, MQNotifierList, )
+                          MedLocationDelete, MQNotifierList, VerifyOtp, SendOtp )
 
 
 urlpatterns = [
@@ -54,6 +54,10 @@ urlpatterns = [
     path('medLocation/', MedLocationView.as_view(), name='med-location'),
     path('medLocationDelete/<int:pk>', MedLocationDelete.as_view(), name='med-location-delete'),
     path('mqNotifier/',MQNotifierList.as_view(), name='med-quantity-notifier'),
+
+    
+    path("send-otp/", SendOtp.as_view(), name="send-otp"),
+    path("verify-otp/", VerifyOtp.as_view(), name="verify-otp"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
