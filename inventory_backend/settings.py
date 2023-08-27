@@ -136,15 +136,21 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 524288000
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# JWT settings
+# CORS Headers
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+# Rest Framework
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 }
 
-# JWT authentication settings
-import datetime
-JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+import datetime 
+# Simple JWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(weeks=52),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(weeks=52),
+    'AUTH_HEADER_TYPES': ('Bearer',)
 }
