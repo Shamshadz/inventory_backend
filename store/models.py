@@ -1,5 +1,5 @@
 from django.db import models
-   
+
 from django.contrib.auth.models import AbstractUser
 import os, uuid
 from django.core.validators import RegexValidator
@@ -43,10 +43,10 @@ class CompanyModel(models.Model):
 
     def __str__(self):
         return self.company_name
-        
+
 class VCompanyModel(models.Model):
     vcompany_name = models.CharField(max_length=1024, blank=False)
-    
+
     def __str__(self):
         return self.vcompany_name
 
@@ -75,7 +75,7 @@ class ItemModel(models.Model):
 
     def __str__(self):
         return self.item_code
-    
+
 class LocationModel(models.Model):
     photo = models.ImageField(blank=True,null=True)
     location = models.CharField(max_length=1024)
@@ -93,7 +93,7 @@ class DashBoardModel(models.Model):
 
     def __str__(self):
         return self.item_code
-    
+
 class DelayTranscation(models.Model):
     name = models.CharField(max_length=1024,blank=True)
     description = models.CharField(max_length=1023,blank=True)
@@ -112,17 +112,17 @@ class MedicineCategoryModel(models.Model):
 
     def __str__(self):
         return self.category
-    
+
 class MedLocationModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True) ## remove null
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) ## remove null
     photo = models.ImageField(blank=True,null=True)
     location = models.CharField(max_length=1024)
 
     def __str__(self):
         return self.location
-    
+
 class MedicineModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True) ## remove null
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) ## remove null
     category = models.ForeignKey(MedicineCategoryModel, on_delete=models.CASCADE)
     name = models.CharField('Medicine Name', max_length=1024)
     manufacturer = models.CharField("Manufacturer", max_length=1024)
@@ -136,9 +136,9 @@ class MedicineModel(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 class MedDashBoardModel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True) ## remove null
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) ## remove null
     category = models.CharField(max_length=1024,blank=True,null=True)
     name = models.CharField(max_length=1024,blank=True,null=True)
     description = models.CharField(max_length=1024,null=True, blank=True)
