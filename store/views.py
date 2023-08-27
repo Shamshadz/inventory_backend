@@ -307,7 +307,7 @@ class MedSearchView(APIView):
                                                     Q(name__icontains=query) |
                                                     Q(manufacturer__icontains=query) |
                                                     Q(description__icontains=query) |
-                                                    Q(location__icontains=query))
+                                                    Q(location__location__icontains=query))
                 for i in queryset:
                     queryset_list.append(i)
 
