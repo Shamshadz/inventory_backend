@@ -251,6 +251,9 @@ class MedicineSerializer(serializers.ModelSerializer):
         try:
             category_data = validated_data.pop('category')
             category_instance, _ = MedicineCategoryModel.objects.get_or_create(**category_data)
+            
+            location_data = validated_data.pop('location')
+            location_instance, _ = MedLocationModel.objects.get_or_create(**location_data)
 
             instance.category = category_instance
             instance.name = validated_data.get('name', instance.name)
@@ -260,7 +263,7 @@ class MedicineSerializer(serializers.ModelSerializer):
             instance.customer_price = validated_data.get('customer_price', instance.customer_price)
             instance.quantity = validated_data.get('quantity', instance.quantity)
             instance.quantity_limit = validated_data.get('quantity_limit', instance.quantity_limit)
-            instance.location = validated_data.get('location', instance.location)
+            instance.location = location_instance
             instance.save()
 
             return instance
